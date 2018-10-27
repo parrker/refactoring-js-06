@@ -23,7 +23,6 @@ var chordCountsInLabels = [];
 var probabilityOfChordsInLabels = {};
 
 function train(chords, label){
-  var index;
   songs.push([label, chords]);
   labels.push(label);
   chords.forEach(chord => {
