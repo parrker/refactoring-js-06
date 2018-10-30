@@ -78,7 +78,6 @@ setProbabilityOfChordsInLabels();
 function classify(chords){
   var smoothing = 1.01;
   var classified = new Map();
-  console.log(labelProbabilities);
   labelProbabilities.forEach(function(_label, difficulty){
     var first = labelProbabilities.get(difficulty) + smoothing;
     chords.forEach(function(chord){
@@ -106,5 +105,11 @@ describe('the file', function () {
     wish(classified.get(easy) === 2.023094827160494);
     wish(classified.get(medium) === 1.855758613168724);
     wish(classified.get(hard) === 1.855758613168724);
+  });
+
+  it('labelProbabilities', function () {
+    wish(labelProbabilities.get(easy) === 0.3333333333333333);
+    wish(labelProbabilities.get(medium) === 0.3333333333333333);
+    wish(labelProbabilities.get(hard) === 0.3333333333333333);
   });
 });
