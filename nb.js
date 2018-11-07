@@ -14,20 +14,20 @@ const classifier = {
   chordCountsInLabels: new Map(),
   probabilityOfChordsInLabels: new Map(),
   smoothing: 1.01,
+  valueForChordDifficulty(difficulty, chord) {
+    const value = this.probabilityOfChordsInLabels.get(difficulty)[chord];
+    return value ? value + this.smoothing : 1;
+  },
   classify: function(chords){
-    const classified = new Map();
-    this.labelProbabilities.forEach((_label, difficulty) => {
-      const totalLikelihood = chords.reduce((total, chord) => {
-        const probabilityOfChordInLabel = this.probabilityOfChordsInLabels.get(difficulty)[chord];
-        if (probabilityOfChordInLabel) {
-          return total * (probabilityOfChordInLabel + this.smoothing);
-        }
+    const classified = new Map(
+      Array.from(this.labelProbabilities.entries()).map((labelWithProbability) => {
+        const difficulty = labelWithProbability[0];
 
-        return total;
-      }, this.labelProbabilities.get(difficulty) + this.smoothing);
-
-      classified.set(difficulty, totalLikelihood);
-    });
+        return [difficulty, chords.reduce((total, chord) => {
+          return total * this.valueForChordDifficulty(difficulty, chord);
+        }, this.labelProbabilities.get(difficulty) + this.smoothing)];
+      })
+    );
     return classified;
   },
 };
