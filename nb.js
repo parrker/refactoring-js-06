@@ -61,15 +61,11 @@ function setLabelProbabilities(){
   });
 }
 
-function setLabelsAndProbabilities() {
-  setLabelProbabilities();
-}
-
 function trainAll() {
   songList.songs.forEach(function(song) {
     train(song.chords, song.difficulty);
   });
-  setLabelsAndProbabilities();
+  setLabelProbabilities();
 }
 
 const wish = require('wish');
