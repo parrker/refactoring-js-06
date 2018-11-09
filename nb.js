@@ -29,6 +29,25 @@ const classifier = {
     const value = this.likelihoodFromChord(difficulty, chord);
     return value ? value + this.smoothing : 1;
   },
+  train: function(chords, label){
+    chords.forEach(chord => classifier.allChords.add(chord));
+    if(Array.from(classifier.labelCounts.keys()).includes(label)){
+      classifier.labelCounts.set(label, classifier.labelCounts.get(label) + 1);
+    } else {
+      classifier.labelCounts.set(label, 1);
+    }
+  },
+  setLabelProbabilities: function(){
+    classifier.labelCounts.forEach(function(_count, label) {
+      classifier.labelProbabilities.set(label, classifier.labelCounts.get(label) / songList.songs.length);
+    });
+  },
+  trainAll: function() {
+    songList.songs.forEach(function(song) {
+      classifier.train(song.chords, song.difficulty);
+    });
+    classifier.setLabelProbabilities();
+  },
   classify: function(chords){
     const classified = new Map(
       Array.from(this.labelProbabilities.entries()).map((labelWithProbability) => {
@@ -43,28 +62,6 @@ const classifier = {
   },
 };
 
-function train(chords, label){
-  chords.forEach(chord => classifier.allChords.add(chord));
-  if(Array.from(classifier.labelCounts.keys()).includes(label)){
-    classifier.labelCounts.set(label, classifier.labelCounts.get(label) + 1);
-  } else {
-    classifier.labelCounts.set(label, 1);
-  }
-};
-
-function setLabelProbabilities(){
-  classifier.labelCounts.forEach(function(_count, label) {
-    classifier.labelProbabilities.set(label, classifier.labelCounts.get(label) / songList.songs.length);
-  });
-}
-
-function trainAll() {
-  songList.songs.forEach(function(song) {
-    train(song.chords, song.difficulty);
-  });
-  setLabelProbabilities();
-}
-
 const wish = require('wish');
 describe('the file', function () {
   songList.addSong('imagine', ['c', 'cmaj7', 'f', 'am', 'dm', 'g', 'e7'], 0);
@@ -77,7 +74,7 @@ describe('the file', function () {
   songList.addSong('toxic', ['cm', 'eb', 'g', 'cdim', 'eb7', 'd7', 'db7', 'ab', 'gmaj7', 'g7'], 2);
   songList.addSong('bulletproof', ['d#m', 'g#', 'b', 'f#', 'g#m', 'c#'], 2);
 
-  trainAll();
+  classifier.trainAll();
 
   it('classifies', function () {
     const classified = classifier.classify(['f#m7', 'a', 'dadd9', 'dmaj7', 'bm', 'bm7', 'd', 'f#m']);
