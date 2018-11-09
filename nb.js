@@ -16,17 +16,14 @@ const classifier = {
     return this.chordCountForDifficulty(difficulty, chord) / songList.songs.length;
   },
   chordCountForDifficulty: function(difficulty, testChord) {
-    let counter = 0;
-    songList.songs.forEach(function(song) {
+    return songList.songs.reduce(function(counter, song) {
       if (song.difficulty === difficulty) {
-        song.chords.forEach(function(chord) {
-          if (chord === testChord) {
-            counter = counter + 1;
-          }
-        });
+        counter += song.chords.filter(function(chord) {
+          return chord === testChord;
+        }).length;
       }
-    });
-    return counter;
+      return counter;
+    }, 0);
   },
   valueForChordDifficulty(difficulty, chord) {
     const value = this.likelihoodFromChord(difficulty, chord);
