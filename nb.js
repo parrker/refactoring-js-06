@@ -8,7 +8,7 @@ const classifier = {
     allChords: new Set(),
     difficulties: ['easy', 'medium', 'hard'],
     songs: [],
-    addSong: function(name, chords, difficulty) {
+    addSong(name, chords, difficulty) {
       this.songs.push({ name, chords, difficulty: this.difficulties[difficulty] });
     },
   },
