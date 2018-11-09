@@ -12,9 +12,11 @@ const classifier = {
   labelProbabilities: new Map(),
   chordCountsInLabels: new Map(),
   smoothing: 1.01,
+
   likelihoodFromChord: function(difficulty, chord){
     return this.chordCountForDifficulty(difficulty, chord) / songList.songs.length;
   },
+
   chordCountForDifficulty: function(difficulty, testChord) {
     return songList.songs.reduce(function(counter, song) {
       if (song.difficulty === difficulty) {
@@ -25,29 +27,34 @@ const classifier = {
       return counter;
     }, 0);
   },
+
   valueForChordDifficulty(difficulty, chord) {
     const value = this.likelihoodFromChord(difficulty, chord);
     return value ? value + this.smoothing : 1;
   },
-  train: function(chords, label){
-    chords.forEach(chord => classifier.allChords.add(chord));
-    if(Array.from(classifier.labelCounts.keys()).includes(label)){
-      classifier.labelCounts.set(label, classifier.labelCounts.get(label) + 1);
-    } else {
-      classifier.labelCounts.set(label, 1);
-    }
-  },
-  setLabelProbabilities: function(){
-    classifier.labelCounts.forEach(function(_count, label) {
-      classifier.labelProbabilities.set(label, classifier.labelCounts.get(label) / songList.songs.length);
-    });
-  },
+
   trainAll: function() {
     songList.songs.forEach(function(song) {
-      classifier.train(song.chords, song.difficulty);
-    });
-    classifier.setLabelProbabilities();
+      this.train(song.chords, song.difficulty);
+    }, this);
+    this.setLabelProbabilities();
   },
+
+  train: function(chords, label){
+    chords.forEach(chord => this.allChords.add(chord));
+    if(Array.from(this.labelCounts.keys()).includes(label)){
+      this.labelCounts.set(label, this.labelCounts.get(label) + 1);
+    } else {
+      this.labelCounts.set(label, 1);
+    }
+  },
+
+  setLabelProbabilities: function(){
+    this.labelCounts.forEach(function(_count, label) {
+      this.labelProbabilities.set(label, this.labelCounts.get(label) / songList.songs.length);
+    }, this);
+  },
+
   classify: function(chords){
     const classified = new Map(
       Array.from(this.labelProbabilities.entries()).map((labelWithProbability) => {
