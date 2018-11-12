@@ -12,11 +12,11 @@ class Classifier {
     this.labelProbabilities = new Map();
     this.chordCountsInLabels = new Map();
     this.smoothing = 1.01;
-  }
+  };
 
   likelihoodFromChord(difficulty, chord) {
     return this.chordCountForDifficulty(difficulty, chord) / this.songList.songs.length;
-  }
+  };
   chordCountForDifficulty(difficulty, testChord) {
     return this.songList.songs.reduce((counter, song) => {
       if (song.difficulty === difficulty) {
@@ -24,17 +24,17 @@ class Classifier {
       }
       return counter;
     }, 0);
-  }
+  };
   valueForChordDifficulty(difficulty, chord) {
     const value = this.likelihoodFromChord(difficulty, chord);
     return value ? value + this.smoothing : 1;
-  }
+  };
   trainAll() {
     this.songList.songs.forEach((song) => {
       this.train(song.chords, song.difficulty);
     });
     this.setLabelProbabilities();
-  }
+  };
   train(chords, label) {
     chords.forEach(chord => this.songList.allChords.add(chord));
     if(Array.from(this.labelCounts.keys()).includes(label)){
@@ -42,12 +42,12 @@ class Classifier {
     } else {
       this.labelCounts.set(label, 1);
     }
-  }
+  };
   setLabelProbabilities() {
     this.labelCounts.forEach((_count, label) => {
       this.labelProbabilities.set(label, this.labelCounts.get(label) / this.songList.songs.length);
     });
-  }
+  };
   classify(chords) {
     const classified = new Map(
       Array.from(this.labelProbabilities.entries()).map((labelWithProbability) => {
@@ -59,7 +59,7 @@ class Classifier {
       })
     );
     return classified;
-  }
+  };
 }
 
 const wish = require('wish');
